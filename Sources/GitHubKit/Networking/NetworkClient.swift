@@ -12,14 +12,14 @@
 import Foundation
 
 
-enum NetworkError: GitHubScannerProtocolError {
+public enum NetworkError: Error {
     case failedRequest(status: Int)
     case invalidJSON
     case unknown(error: Error?)
 }
 
 
-final class NetworkClient {
+public final class NetworkClient {
 
 
     // MARK: - Properties
@@ -36,11 +36,11 @@ final class NetworkClient {
 
     // MARK: - Tasks
 
-    func dataTask<Output: JSONInitializable>(with request: URLRequest,
-                                             responseHandler: ResponseHandler = ResponseHandlers.default,
-                                             completion: ((_ result: Output?,
-                                                           _ linkHeader: String?,
-                                                           _ error: NetworkError?) -> Void)? = nil) {
+    public func dataTask<Output: JSONInitializable>(with request: URLRequest,
+                                                    responseHandler: ResponseHandler = ResponseHandlers.default,
+                                                    completion: ((_ result: Output?,
+                                                                  _ linkHeader: String?,
+                                                                  _ error: NetworkError?) -> Void)? = nil) {
 
         session.dataTask(with: request) { data, response, error in
             responseHandler.process(data: data, response: response, error: error, completion: completion)

@@ -10,6 +10,6 @@
 import Foundation
 
 
-enum Clients {
-    static let `default` = NetworkClient()
+public enum Clients {
+    public static let `default` = NetworkClient()
 }

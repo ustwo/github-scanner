@@ -9,6 +9,7 @@
 import Commandant
 import Dispatch
 import Foundation
+import GitHubKit
 import Result
 
 

@@ -10,7 +10,7 @@
 // swiftlint:disable force_unwrapping
 
 import Foundation
-@testable import GitHubScannerKit
+@testable import GitHubKit
 import XCTest
 
 
