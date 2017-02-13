@@ -34,6 +34,8 @@ file_header:
                     \/\/  Copyright © \d{4} ustwo Fampany Ltd\. All rights reserved\.
                     \/\/
 
+number_separator:
+  minimum_length: 5
 vertical_whitespace:
   max_empty_lines: 2
 
