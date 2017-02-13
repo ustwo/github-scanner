@@ -9,12 +9,12 @@
 import Foundation
 
 
-struct GitHubAPI {
+public struct GitHubAPI {
 
     fileprivate static let baseURL = "https://api.github.com"
 
 
-    enum Repositories {
+    public enum Repositories {
         case organizationRepositories(organization: String)
     }
 
@@ -23,7 +23,7 @@ struct GitHubAPI {
 
 extension GitHubAPI.Repositories {
 
-    var url: URL {
+    public var url: URL {
         guard let result = URL(string: GitHubAPI.baseURL + self.path) else {
             fatalError("Failed to create URL with path: \(self.path).")
         }

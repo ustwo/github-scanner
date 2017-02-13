@@ -12,7 +12,7 @@
 import Foundation
 
 
-protocol ResponseHandler {
+public protocol ResponseHandler {
 
     func process<Output: JSONInitializable>(data: Data?,
                                             response: URLResponse?,
@@ -24,19 +24,19 @@ protocol ResponseHandler {
 }
 
 
-enum ResponseHandlers {
+public enum ResponseHandlers {
     static let `default` = JSONResponseHandler()
 }
 
 
-final class JSONResponseHandler: ResponseHandler {
+public final class JSONResponseHandler: ResponseHandler {
 
-    func process<Output: JSONInitializable>(data: Data?,
-                                            response: URLResponse?,
-                                            error: Error?,
-                                            completion: ((_ result: Output?,
-                                                          _ linkHeader: String?,
-                                                          _ error: NetworkError?) -> Void)?) {
+    public func process<Output: JSONInitializable>(data: Data?,
+                                                   response: URLResponse?,
+                                                   error: Error?,
+                                                   completion: ((_ result: Output?,
+                                                                 _ linkHeader: String?,
+                                                                 _ error: NetworkError?) -> Void)?) {
 
         guard let httpResponse = response as? HTTPURLResponse,
             let data = data else {

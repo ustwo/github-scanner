@@ -10,7 +10,7 @@
 // swiftlint:disable force_unwrapping line_length
 
 import Foundation
-@testable import GitHubScannerKit
+@testable import GitHubKit
 import XCTest
 
 
@@ -26,7 +26,7 @@ final class HTTPURLResponseTests: XCTestCase {
                                        statusCode: 200,
                                        httpVersion: "HTTP/1.1",
                                        headerFields: ["Link":
-                                                      "<\(expectedURL)>; rel=\"next\"" +
+                                                      "<\(expectedURL)>; rel=\"next\", " +
                                                       "<https://api.github.com/organizations/625384/repos?page=2>; rel=\"last\""])!
 
         // When

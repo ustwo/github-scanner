@@ -14,10 +14,10 @@ public struct Repository {
 
     // MARK: - Properties
 
-    let htmlURL: URL
-    let identifier: Int
-    let name: String
-    let primaryLanguage: String?
+    public let htmlURL: URL
+    public let identifier: Int
+    public let name: String
+    public let primaryLanguage: String?
 
 }
 

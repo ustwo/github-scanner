@@ -13,7 +13,9 @@ let package = Package(
     targets: [
         Target(name: "github-scanner",
             dependencies: [.Target(name: "GitHubScannerKit")]),
-        Target(name: "GitHubScannerKit")
+        Target(name: "GitHubScannerKit",
+            dependencies: [.Target(name: "GitHubKit")]),
+        Target(name: "GitHubKit")
     ],
     dependencies: [
         .Package(url: "https://github.com/Carthage/Commandant", majorVersion: 0)

@@ -6,6 +6,8 @@
 //  Copyright © 2016 ustwo Fampany Ltd. All rights reserved.
 //
 
+import GitHubKit
+
 
 public protocol GitHubScannerProtocolError: Error {}
 
@@ -14,3 +16,6 @@ public enum GitHubScannerError: GitHubScannerProtocolError {
     case `internal`(GitHubScannerProtocolError)
     case external(Error)
 }
+
+
+extension NetworkError: GitHubScannerProtocolError {}
