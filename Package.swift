@@ -18,6 +18,7 @@ let package = Package(
         Target(name: "GitHubKit")
     ],
     dependencies: [
-        .Package(url: "https://github.com/Carthage/Commandant", majorVersion: 0)
+        .Package(url: "https://github.com/Carthage/Commandant", majorVersion: 0),
+        .Package(url: "https://github.com/scottrhoyt/SwiftyTextTable.git", majorVersion: 0, minor: 6)
     ]
 )
