@@ -18,7 +18,7 @@ DispatchQueue.global().async {
     registry.register(ScanCommand())
     registry.register(HelpCommand(registry: registry))
 
-    registry.main(defaultVerb: ScanCommand().verb) { error in
+    registry.main(defaultVerb: HelpCommand(registry: registry).verb) { error in
         print(String(describing: error))
     }
 }
