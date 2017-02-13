@@ -2,6 +2,7 @@ RUBY := $(shell which ruby)
 BREW := $(shell which brew)
 SWIFT := $(shell which swift)
 SWIFTLINT := $(shell which swiftlint)
+CURL := $(shell which curl)
 
 
 # Generates the xcodeproj and compiles the executable
@@ -44,15 +45,15 @@ endif
 
 install-homebrew:
 ifndef BREW
-	$(RUBY) -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	$(RUBY) -e "$($(CURL) -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 else
-	brew update
+	$(BREW) update
 endif
 
 
 install-swiftlint:
 ifndef SWIFTLINT
-	brew install swiftlint
+	$(BREW) install swiftlint
 else
-	brew outdated swiftlint || brew upgrade swiftlint
+	$(BREW) outdated swiftlint || $(BREW) upgrade swiftlint
 endif
