@@ -52,12 +52,20 @@ public struct ScanCommand: CommandProtocol {
         // Filter
 
         if !options.primaryLanguage.isEmpty {
-            let languageFilter: (Repository) -> Bool = { repository in
-                guard let primaryLanguage = repository.primaryLanguage else {
-                    return false
-                }
+            let languageFilter: (Repository) -> Bool
 
-                return primaryLanguage == options.primaryLanguage
+            if options.primaryLanguage.uppercased() == "NULL" {
+                languageFilter = { repository in
+                    return (repository.primaryLanguage == .none)
+                }
+            } else {
+                languageFilter = { repository in
+                    guard let primaryLanguage = repository.primaryLanguage else {
+                        return false
+                    }
+
+                    return primaryLanguage == options.primaryLanguage
+                }
             }
 
             result = Repositories(elements: result.filter(languageFilter))
