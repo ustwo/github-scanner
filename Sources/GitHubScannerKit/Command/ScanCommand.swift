@@ -11,6 +11,7 @@ import Dispatch
 import Foundation
 import GitHubKit
 import Result
+import SwiftyTextTable
 
 
 typealias Repositories = ArrayFoo<Repository>
@@ -68,15 +69,13 @@ public struct ScanCommand: CommandProtocol {
 
         // Return
 
-        queuedPrint(result)
+        queuedPrint(result.elements.renderTextTable())
 
         return .success()
     }
 
     private func recursivelyFetchRepositories(url: URL) -> Result<Repositories, GitHubScannerError> {
         let semaphore = DispatchSemaphore(value: 0)
-
-        queuedPrint(url)
 
         var repositories: Repositories?
         var error: NetworkError?
