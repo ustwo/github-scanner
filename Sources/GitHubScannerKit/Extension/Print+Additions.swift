@@ -15,7 +15,7 @@ import Foundation
 
 private let outputQueue: DispatchQueue = {
     let queue = DispatchQueue(
-        label: "io.realm.swiftlint.outputQueue",
+        label: "io.ustwo.github-scanner.outputQueue",
         qos: .userInteractive,
         target: .global(qos: .userInteractive)
     )
