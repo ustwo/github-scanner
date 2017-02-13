@@ -2,7 +2,7 @@
 
 ## License
 
-GitHub Scanner is released under the MIT license. See [LICENSE.md][license] for details. Note that while Mock Mockingbird is licensed under the MIT license, not all of its dependencies may be. Please check the depedencies listed in the [`Package.swift`][package] file and their respective licesnses.
+GitHub Scanner is released under the MIT license. See [LICENSE.md][license] for details. Note that while github-scanner is licensed under the MIT license, not all of its dependencies may be. Please check the depedencies listed in the [`Package.swift`][package] file and their respective licesnses.
 
 ## Maintainers
 
