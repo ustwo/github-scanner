@@ -14,9 +14,8 @@ import Foundation
 public final class EncodeURLParameters: RequestTransformer {
 
 
-
     // MARK: - RequestTransformer
-    
+
     /// Adds the parameters to the URL of the request.
     ///
     /// - Parameters:
@@ -29,7 +28,7 @@ public final class EncodeURLParameters: RequestTransformer {
             let url = request.url,
             var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false),
             !parameters.isEmpty else {
-            
+
                 return
         }
 
