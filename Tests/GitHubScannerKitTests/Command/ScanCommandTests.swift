@@ -27,6 +27,16 @@ final class ScanOptionsTests: XCTestCase {
         assertOptions(arguments: CommandMode.arguments(args))
     }
 
+    func testLicense() {
+        // Given
+        let expectedLicense = "MIT"
+        let args = ArgumentParser(["--license", expectedLicense])
+
+        // Then
+        assertOptions(arguments: CommandMode.arguments(args),
+                      license: expectedLicense)
+    }
+
     func testOauthToken() {
         // Given
         let expectedOauthToken = "ABC123"
@@ -71,6 +81,7 @@ final class ScanOptionsTests: XCTestCase {
     // MARK: - Convenience
 
     private func assertOptions(arguments: CommandMode,
+                               license: String = "",
                                oauthToken: String = "",
                                organization: String = "",
                                primaryLanguage: String = "",
@@ -90,6 +101,14 @@ final class ScanOptionsTests: XCTestCase {
             return
         }
 
+        guard actualResult.license == license else {
+            recordFailure(withDescription:  "Expected license to be: \(license) " +
+                                            "but found: \(actualResult.license)",
+                          inFile: file,
+                          atLine: line,
+                          expected: true)
+            return
+        }
         guard actualResult.oauthToken == oauthToken else {
             recordFailure(withDescription:  "Expected oauthToken to be: \(oauthToken) " +
                                             "but found: \(actualResult.oauthToken)",
