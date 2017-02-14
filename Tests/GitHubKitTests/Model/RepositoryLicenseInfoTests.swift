@@ -49,4 +49,49 @@ final class RepositoryLicenseInfoTests: XCTestCase {
         XCTAssertNil(actualResult)
     }
 
+    func testEquatable_Success() {
+        // Given
+        let key = "mit"
+        let name = "MIT License"
+        let urlString = "https://api.github.com/licenses/mit"
+        let lhs = RepositoryLicenseInfo(key: key,
+                                        name: name,
+                                        url: URL(string: urlString)!)
+        
+        // Then
+        XCTAssertEqual(lhs, lhs)
+    }
+    
+    func testEquatable_Failure_NilValue() {
+        // Given
+        let key = "mit"
+        let name = "MIT License"
+        let urlString = "https://api.github.com/licenses/mit"
+        let lhs = RepositoryLicenseInfo(key: key,
+                                        name: name,
+                                        url: URL(string: urlString)!)
+        let rhs = RepositoryLicenseInfo(key: nil,
+                                        name: name,
+                                        url: URL(string: urlString)!)
+        
+        // Then
+        XCTAssertNotEqual(lhs, rhs)
+    }
+    
+    func testEquatable_Failure_DifferentValues() {
+        // Given
+        let key = "mit"
+        let name = "MIT License"
+        let urlString = "https://api.github.com/licenses/mit"
+        let lhs = RepositoryLicenseInfo(key: key,
+                                        name: name,
+                                        url: URL(string: urlString)!)
+        let rhs = RepositoryLicenseInfo(key: key,
+                                        name: name + "abc",
+                                        url: URL(string: urlString)!)
+        
+        // Then
+        XCTAssertNotEqual(lhs, rhs)
+    }
+    
 }

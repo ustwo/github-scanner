@@ -61,31 +61,9 @@ extension RepositoryLicenseInfo: JSONInitializable {
 extension RepositoryLicenseInfo: Equatable {
 
     public static func == (lhs: RepositoryLicenseInfo, rhs: RepositoryLicenseInfo) -> Bool {
-        if let lhsValue = lhs.key {
-            guard let rhsValue = rhs.key,
-                lhsValue == rhsValue else {
-
-                    return false
-            }
-        }
-
-        if let lhsValue = lhs.name {
-            guard let rhsValue = rhs.name,
-                lhsValue == rhsValue else {
-
-                    return false
-            }
-        }
-
-        if let lhsValue = lhs.url {
-            guard let rhsValue = rhs.url,
-                lhsValue == rhsValue else {
-
-                    return false
-            }
-        }
-
-        return true
+        return lhs.key == rhs.key &&
+               lhs.name == rhs.name &&
+               lhs.url == rhs.url
     }
 
 }
