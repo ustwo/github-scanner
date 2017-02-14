@@ -12,4 +12,8 @@ import Foundation
 
 public enum Clients {
     public static let `default` = NetworkClient()
+    public static let ephemeral: NetworkClient = {
+        let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
+        return NetworkClient(session: session)
+    }()
 }
