@@ -18,6 +18,11 @@ typealias Repositories = ArrayFoo<Repository>
 typealias RepositoryFetchCompletionHandler = (Repositories?, String?, NetworkError?) -> Void
 
 
+public enum ScanOptionsError: GitHubScannerProtocolError {
+    case invalidRepositoryType(value: String)
+}
+
+
 public struct ScanCommand: CommandProtocol {
 
 
@@ -37,9 +42,16 @@ public struct ScanCommand: CommandProtocol {
     public func run(_ options: ScanOptions) -> Result<(), GitHubScannerError> {
         let url = GitHubAPI.Repositories.organizationRepositories(organization: options.organization).url
 
+        guard let repositoryType = OrganizationRepositoriesType(rawValue: options.repositoryType) else {
+            let error = ScanOptionsError.invalidRepositoryType(value: options.repositoryType)
+            return .failure(GitHubScannerError.internal(error))
+        }
+
         // Fetch
 
-        let fetchResult = recursivelyFetchRepositories(url: url)
+        let fetchResult = recursivelyFetchRepositories(url: url,
+                                                       repositoryType: repositoryType,
+                                                       oauthToken: options.oauthToken)
 
         var result: Repositories
         switch fetchResult {
@@ -82,7 +94,10 @@ public struct ScanCommand: CommandProtocol {
         return .success()
     }
 
-    private func recursivelyFetchRepositories(url: URL) -> Result<Repositories, GitHubScannerError> {
+    private func recursivelyFetchRepositories(url: URL,
+                                              repositoryType: OrganizationRepositoriesType,
+                                              oauthToken: String?) -> Result<Repositories, GitHubScannerError> {
+
         let semaphore = DispatchSemaphore(value: 0)
 
         var repositories: Repositories?
@@ -100,16 +115,23 @@ public struct ScanCommand: CommandProtocol {
         }
 
         var request = URLRequest(url: url)
-        request.allHTTPHeaderFields?["type"] = "public"
+        RequestTransformers.addURLParameters.transform(request: &request, value: ["type": repositoryType.rawValue])
 
-        Clients.default.dataTask(with: request, completion: completionHandler)
+        if let oauthToken = oauthToken {
+            RequestTransformers.authorize.transform(request: &request, value: oauthToken)
+        }
+
+        Clients.ephemeral.dataTask(with: request, completion: completionHandler)
 
         semaphore.wait()
 
         if let headerLink = headerLink,
             let nextURL = URL(string: headerLink) {
 
-            let recursiveResult = recursivelyFetchRepositories(url: nextURL)
+            let recursiveResult = recursivelyFetchRepositories(url: nextURL,
+                                                               repositoryType: repositoryType,
+                                                               oauthToken: oauthToken)
+
             switch recursiveResult {
             case .success(let fetchedRepositories):
                 repositories?.elements.append(contentsOf: fetchedRepositories)
@@ -131,22 +153,52 @@ public struct ScanCommand: CommandProtocol {
 // MARK: - ScanOptions
 
 public struct ScanOptions: OptionsProtocol {
+    public let oauthToken: String
     public let organization: String
     public let primaryLanguage: String
+    public let repositoryType: String
 
-    public static func create(_ organization: String) -> (_ primaryLanguage: String) -> ScanOptions {
-        return { primaryLanguage in
-            self.init(organization: organization, primaryLanguage: primaryLanguage)
-        }
+    public static func create(_ oauthToken: String) -> (_ organization: String) ->
+        (_ primaryLanguage: String) -> (_ repositoryType: String) -> ScanOptions {
+
+        return {organization in { primaryLanguage in { repositoryType in
+            self.init(oauthToken: oauthToken,
+                      organization: organization,
+                      primaryLanguage: primaryLanguage,
+                      repositoryType: repositoryType)
+        }}}
     }
 
     public static func evaluate(_ mode: CommandMode) -> Result<ScanOptions, CommandantError<GitHubScannerError>> {
         return create
+            <*> mode <| Option(key: "oauth",
+                               defaultValue: "",
+                               usage: "the OAuth token to use for searching private repositories")
             <*> mode <| Option(key: "organization",
                                defaultValue: "",
                                usage: "the GitHub organization to filter upon")
             <*> mode <| Option(key: "primary-language",
                                defaultValue: "",
                                usage: "the primary programming language of the repository")
+            <*> mode <| Option(key: "type",
+                               defaultValue: "public",
+                               usage: "the type of repository (\(OrganizationRepositoriesType.allValuesList)). " +
+                                      "default is `public`")
     }
+}
+
+
+public enum OrganizationRepositoriesType: String {
+    case all
+    case forks
+    case member
+    case `private`
+    case `public`
+    case sources
+
+    static let allValues: [OrganizationRepositoriesType] = [.all, .forks, .member, .private, .public, .sources]
+
+    static let allValuesList: String = {
+        return OrganizationRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
+    }()
 }

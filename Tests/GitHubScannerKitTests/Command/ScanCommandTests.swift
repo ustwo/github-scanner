@@ -27,6 +27,16 @@ final class ScanOptionsTests: XCTestCase {
         assertOptions(arguments: CommandMode.arguments(args))
     }
 
+    func testOauthToken() {
+        // Given
+        let expectedOauthToken = "ABC123"
+        let args = ArgumentParser(["--oauth", expectedOauthToken])
+
+        // Then
+        assertOptions(arguments: CommandMode.arguments(args),
+                      oauthToken: expectedOauthToken)
+    }
+
     func testOrganization() {
         // Given
         let expectedOrganization = "ustwo"
@@ -47,12 +57,24 @@ final class ScanOptionsTests: XCTestCase {
                       primaryLanguage: expectedPrimaryLanguage)
     }
 
+    func testRepositoryType() {
+        // Given
+        let expectedRepositoryType = "private"
+        let args = ArgumentParser(["--type", expectedRepositoryType])
+
+        // Then
+        assertOptions(arguments: CommandMode.arguments(args),
+                      repositoryType: expectedRepositoryType)
+    }
+
 
     // MARK: - Convenience
 
     private func assertOptions(arguments: CommandMode,
+                               oauthToken: String = "",
                                organization: String = "",
                                primaryLanguage: String = "",
+                               repositoryType: String = "public",
                                file: String = #file, line: UInt = #line) {
 
         // When
@@ -68,6 +90,14 @@ final class ScanOptionsTests: XCTestCase {
             return
         }
 
+        guard actualResult.oauthToken == oauthToken else {
+            recordFailure(withDescription:  "Expected oauthToken to be: \(oauthToken) " +
+                                            "but found: \(actualResult.oauthToken)",
+                          inFile: file,
+                          atLine: line,
+                          expected: true)
+            return
+        }
         guard actualResult.organization == organization else {
             recordFailure(withDescription:  "Expected organization to be: \(organization) " +
                                             "but found: \(actualResult.organization)",
@@ -79,6 +109,14 @@ final class ScanOptionsTests: XCTestCase {
         guard actualResult.primaryLanguage == primaryLanguage else {
             recordFailure(withDescription:  "Expected primary language to be: \(primaryLanguage) " +
                                             "but found: \(actualResult.primaryLanguage)",
+                          inFile: file,
+                          atLine: line,
+                          expected: true)
+            return
+        }
+        guard actualResult.repositoryType == repositoryType else {
+            recordFailure(withDescription:  "Expected repositoryType to be: \(repositoryType) " +
+                                            "but found: \(actualResult.repositoryType)",
                           inFile: file,
                           atLine: line,
                           expected: true)
