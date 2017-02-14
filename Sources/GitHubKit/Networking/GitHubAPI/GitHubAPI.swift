@@ -33,7 +33,7 @@ extension GitHubAPI.Repositories {
 
     private var path: String {
         switch self {
-            case .organizationRepositories(let organization):
+            case let .organizationRepositories(organization):
                 return "/orgs/\(organization)/repos"
         }
     }
