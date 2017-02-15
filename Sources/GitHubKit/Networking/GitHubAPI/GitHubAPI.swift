@@ -16,6 +16,7 @@ public struct GitHubAPI {
 
     public enum Repositories {
         case organizationRepositories(organization: String)
+        case userRepositories(username: String)
     }
 
 }
@@ -35,6 +36,12 @@ extension GitHubAPI.Repositories {
         switch self {
             case let .organizationRepositories(organization):
                 return "/orgs/\(organization)/repos"
+            case let .userRepositories(username):
+                if username.isEmpty {
+                    return "/user/repos"
+                } else {
+                    return "/users/\(username)/repos"
+                }
         }
     }
 

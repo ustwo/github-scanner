@@ -17,11 +17,86 @@ import XCTest
 final class ScanOptionsTests: XCTestCase {
 
 
-    // MARK: - Tests
+    // MARK: - Test Validation
+
+    func testValidity_Valid() {
+        // Given
+        let args = ArgumentParser(["user", "foo"])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args))
+    }
+
+    func testValidity_Invalid_Category() {
+        // Given
+        let value = "foo"
+        let args = ArgumentParser([value])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args),
+                       validity: false,
+                       error: ScanOptionsError.invalidCategory(value: value))
+    }
+
+    func testValidity_Invalid_Owner() {
+        // Given
+        let args = ArgumentParser(["organization"])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args),
+                       validity: false,
+                       error: ScanOptionsError.missingOwner)
+    }
+
+    func testValidity_Invalid_OrganizationRepositoryType() {
+        // Given
+        let value = "foo"
+        let args = ArgumentParser(["organization", "ustwo", "--type", value])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args),
+                       validity: false,
+                       error: ScanOptionsError.invalidRepositoryType(value: value))
+    }
+
+    func testValidity_Invalid_SelfRepositoryType() {
+        // Given
+        let value = "foo"
+        let args = ArgumentParser(["user", "--oauth", "ABC123", "--type", value])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args),
+                       validity: false,
+                       error: ScanOptionsError.invalidRepositoryType(value: value))
+    }
+
+    func testValidity_Invalid_UserRepositoryType() {
+        // Given
+        let value = "foo"
+        let args = ArgumentParser(["user", "ABC", "--oauth", "ABC123", "--type", value])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args),
+                       validity: false,
+                       error: ScanOptionsError.invalidRepositoryType(value: value))
+    }
+
+    func testValidity_Invalid_MissingAuthorization() {
+        // Given
+        let args = ArgumentParser(["user"])
+
+        // Then
+        assertValidity(arguments: CommandMode.arguments(args),
+                       validity: false,
+                       error: ScanOptionsError.missingAuthorization)
+    }
+
+
+    // MARK: - Test Initialization
 
     func testDefaultInit() {
         // Given
-        let args = ArgumentParser([])
+        let args = ArgumentParser(["user"])
 
         // Then
         assertOptions(arguments: CommandMode.arguments(args))
@@ -30,7 +105,7 @@ final class ScanOptionsTests: XCTestCase {
     func testLicense() {
         // Given
         let expectedLicense = "MIT"
-        let args = ArgumentParser(["--license", expectedLicense])
+        let args = ArgumentParser(["user", "--license", expectedLicense])
 
         // Then
         assertOptions(arguments: CommandMode.arguments(args),
@@ -40,7 +115,7 @@ final class ScanOptionsTests: XCTestCase {
     func testOauthToken() {
         // Given
         let expectedOauthToken = "ABC123"
-        let args = ArgumentParser(["--oauth", expectedOauthToken])
+        let args = ArgumentParser(["user", "--oauth", expectedOauthToken])
 
         // Then
         assertOptions(arguments: CommandMode.arguments(args),
@@ -50,17 +125,17 @@ final class ScanOptionsTests: XCTestCase {
     func testOrganization() {
         // Given
         let expectedOrganization = "ustwo"
-        let args = ArgumentParser(["--organization", expectedOrganization])
+        let args = ArgumentParser(["organization", expectedOrganization])
 
         // Then
         assertOptions(arguments: CommandMode.arguments(args),
-                      organization: expectedOrganization)
+                      owner: expectedOrganization)
     }
 
     func testPrimaryLanguage() {
         // Given
         let expectedPrimaryLanguage = "Swift"
-        let args = ArgumentParser(["--primary-language", expectedPrimaryLanguage])
+        let args = ArgumentParser(["user", "--primary-language", expectedPrimaryLanguage])
 
         // Then
         assertOptions(arguments: CommandMode.arguments(args),
@@ -70,11 +145,31 @@ final class ScanOptionsTests: XCTestCase {
     func testRepositoryType() {
         // Given
         let expectedRepositoryType = "private"
-        let args = ArgumentParser(["--type", expectedRepositoryType])
+        let args = ArgumentParser(["user", "--type", expectedRepositoryType])
 
         // Then
         assertOptions(arguments: CommandMode.arguments(args),
                       repositoryType: expectedRepositoryType)
+    }
+
+    func testUser_Self() {
+        // Given
+        let expectedOwner = ""
+        let args = ArgumentParser(["user", expectedOwner])
+
+        // Then
+        assertOptions(arguments: CommandMode.arguments(args),
+                      owner: expectedOwner)
+    }
+
+    func testUser_Other() {
+        // Given
+        let expectedOwner = "foo"
+        let args = ArgumentParser(["user", expectedOwner])
+
+        // Then
+        assertOptions(arguments: CommandMode.arguments(args),
+                      owner: expectedOwner)
     }
 
 
@@ -84,9 +179,9 @@ final class ScanOptionsTests: XCTestCase {
     private func assertOptions(arguments: CommandMode,
                                license: String = "",
                                oauthToken: String = "",
-                               organization: String = "",
+                               owner: String = "",
                                primaryLanguage: String = "",
-                               repositoryType: String = "public",
+                               repositoryType: String = "all",
                                file: String = #file, line: UInt = #line) {
 
         // When
@@ -118,9 +213,9 @@ final class ScanOptionsTests: XCTestCase {
                           expected: true)
             return
         }
-        guard actualResult.organization == organization else {
-            recordFailure(withDescription:  "Expected organization to be: \(organization) " +
-                                            "but found: \(actualResult.organization)",
+        guard actualResult.owner == owner else {
+            recordFailure(withDescription:  "Expected owner to be: \(owner) " +
+                                            "but found: \(actualResult.owner)",
                           inFile: file,
                           atLine: line,
                           expected: true)
@@ -141,6 +236,37 @@ final class ScanOptionsTests: XCTestCase {
                           atLine: line,
                           expected: true)
             return
+        }
+    }
+
+    private func assertValidity(arguments: CommandMode,
+                                validity: Bool = true,
+                                error: ScanOptionsError? = nil,
+                                file: String = #file, line: UInt = #line) {
+
+        // When
+        let result = ScanOptions.evaluate(arguments)
+        let optionEvaluation = try? result.dematerialize()
+        guard let options = optionEvaluation else {
+            recordFailure(withDescription: "Unable to dematerialize result.",
+                          inFile: file,
+                          atLine: line,
+                          expected: false)
+            return
+        }
+
+        let isValid = options.validateConfiguration()
+
+        // Then
+        switch isValid {
+        case .success:
+            XCTAssertTrue(validity,
+                          "Expected configuration to be valid but was invalid.")
+        case let .failure(validityError):
+            XCTAssertFalse(validity,
+                           "Expected configuration to be invalid but it was valid.")
+            XCTAssertEqual(error, validityError,
+                           "Expected error to be: \(error) but instead found: \(validityError).")
         }
     }
 
