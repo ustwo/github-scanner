@@ -18,6 +18,7 @@ public struct Repository {
     public let identifier: Int
     public let name: String
     public let primaryLanguage: String?
+    public let licenseInfo: RepositoryLicenseInfo?
 
 }
 
@@ -45,6 +46,7 @@ extension Repository: JSONInitializable {
         static let identifier = "id"
         static let name = "name"
         static let primaryLanguage = "language"
+        static let license = "license"
     }
 
 
@@ -62,7 +64,16 @@ extension Repository: JSONInitializable {
 
         let primaryLanguage = jsonArray[JSONKeys.primaryLanguage] as? String
 
-        self.init(htmlURL: htmlURL, identifier: identifier, name: name, primaryLanguage: primaryLanguage)
+        var licenseInfo: RepositoryLicenseInfo?
+        if let licenseJSON = jsonArray[JSONKeys.license] {
+            licenseInfo = RepositoryLicenseInfo(json: licenseJSON)
+        }
+
+        self.init(htmlURL: htmlURL,
+                  identifier: identifier,
+                  name: name,
+                  primaryLanguage: primaryLanguage,
+                  licenseInfo: licenseInfo)
     }
 
 }

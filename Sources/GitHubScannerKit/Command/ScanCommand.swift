@@ -15,7 +15,7 @@ import SwiftyTextTable
 
 
 typealias Repositories = ArrayFoo<Repository>
-typealias RepositoryFetchCompletionHandler = (Repositories?, String?, NetworkError?) -> Void
+typealias RepositoryFetchCompletion = (Repositories?, String?, NetworkError?) -> Void
 
 
 public enum ScanOptionsError: GitHubScannerProtocolError {
@@ -24,6 +24,15 @@ public enum ScanOptionsError: GitHubScannerProtocolError {
 
 
 public struct ScanCommand: CommandProtocol {
+
+
+    // MARK: - Types
+
+    private struct Constants {
+        static let nullOption                       = "NULL"
+        static let openSourceLicenseUseAcceptHeader = "application/vnd.github.drax-preview+json"
+        static let repositoryTypeParameterKey       = "type"
+    }
 
 
     // MARK: - Properties
@@ -66,7 +75,7 @@ public struct ScanCommand: CommandProtocol {
         if !options.primaryLanguage.isEmpty {
             let languageFilter: (Repository) -> Bool
 
-            if options.primaryLanguage.uppercased() == "NULL" {
+            if options.primaryLanguage.uppercased() == Constants.nullOption {
                 languageFilter = { repository in
                     return (repository.primaryLanguage == .none)
                 }
@@ -81,6 +90,30 @@ public struct ScanCommand: CommandProtocol {
             }
 
             result = Repositories(elements: result.filter(languageFilter))
+        }
+
+        if !options.license.isEmpty {
+            let licenseFilter: (Repository) -> Bool
+
+            if options.license.uppercased() == Constants.nullOption {
+                licenseFilter = { repository in
+                    guard let licenseInfo = repository.licenseInfo else {
+                        return true
+                    }
+
+                    return (licenseInfo.name == .none)
+                }
+            } else {
+                licenseFilter = { repository in
+                    guard let licenseInfo = repository.licenseInfo else {
+                        return false
+                    }
+
+                    return licenseInfo.name == options.license
+                }
+            }
+
+            result = Repositories(elements: result.filter(licenseFilter))
         }
 
         // Sort
@@ -104,7 +137,7 @@ public struct ScanCommand: CommandProtocol {
         var error: NetworkError?
         var headerLink: String?
 
-        let completionHandler: RepositoryFetchCompletionHandler = { fetchedRepositories, link, responseError in
+        let completionHandler: RepositoryFetchCompletion = { fetchedRepositories, link, responseError in
             defer {
                 semaphore.signal()
             }
@@ -115,7 +148,11 @@ public struct ScanCommand: CommandProtocol {
         }
 
         var request = URLRequest(url: url)
-        RequestTransformers.addURLParameters.transform(request: &request, value: ["type": repositoryType.rawValue])
+        RequestTransformers.apiPreview.transform(request: &request,
+                                                 value: Constants.openSourceLicenseUseAcceptHeader)
+        RequestTransformers.addURLParameters.transform(request: &request,
+                                                       value: [Constants.repositoryTypeParameterKey:
+                                                               repositoryType.rawValue])
 
         if let oauthToken = oauthToken {
             RequestTransformers.authorize.transform(request: &request, value: oauthToken)
@@ -153,27 +190,34 @@ public struct ScanCommand: CommandProtocol {
 // MARK: - ScanOptions
 
 public struct ScanOptions: OptionsProtocol {
+    public let license: String
     public let oauthToken: String
     public let organization: String
     public let primaryLanguage: String
     public let repositoryType: String
 
-    public static func create(_ oauthToken: String) -> (_ organization: String) ->
-        (_ primaryLanguage: String) -> (_ repositoryType: String) -> ScanOptions {
+    public static func create(_ license: String) -> (_ oauthToken: String) ->
+        (_ organization: String) -> (_ primaryLanguage: String) ->
+        (_ repositoryType: String) -> ScanOptions {
 
-        return {organization in { primaryLanguage in { repositoryType in
-            self.init(oauthToken: oauthToken,
+        return { oauthToken in {organization in { primaryLanguage in { repositoryType in
+            self.init(license: license,
+                      oauthToken: oauthToken,
                       organization: organization,
                       primaryLanguage: primaryLanguage,
                       repositoryType: repositoryType)
-        }}}
+        }}}}
     }
 
     public static func evaluate(_ mode: CommandMode) -> Result<ScanOptions, CommandantError<GitHubScannerError>> {
         return create
+            <*> mode <| Option(key: "license",
+                               defaultValue: "",
+                               usage: "the license type of the repositories (e.g. 'MIT License'). " +
+                                      "requires authorization")
             <*> mode <| Option(key: "oauth",
                                defaultValue: "",
-                               usage: "the OAuth token to use for searching private repositories")
+                               usage: "the OAuth token to use for searching repositories")
             <*> mode <| Option(key: "organization",
                                defaultValue: "",
                                usage: "the GitHub organization to filter upon")
@@ -183,7 +227,7 @@ public struct ScanOptions: OptionsProtocol {
             <*> mode <| Option(key: "type",
                                defaultValue: "public",
                                usage: "the type of repository (\(OrganizationRepositoriesType.allValuesList)). " +
-                                      "default is `public`")
+                                      "default is `public`. may require authorization")
     }
 }
 
