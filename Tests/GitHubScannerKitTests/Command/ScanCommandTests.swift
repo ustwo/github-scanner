@@ -80,6 +80,7 @@ final class ScanOptionsTests: XCTestCase {
 
     // MARK: - Convenience
 
+    // swiftlint:disable:next function_body_length
     private func assertOptions(arguments: CommandMode,
                                license: String = "",
                                oauthToken: String = "",
