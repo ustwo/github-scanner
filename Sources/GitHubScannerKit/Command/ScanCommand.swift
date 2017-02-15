@@ -19,8 +19,10 @@ public struct ScanCommand: CommandProtocol {
     // MARK: - Properties
 
     public let verb = "scan"
-    public let function = "Scans the repositories."
-
+    public let function = "Scans the repositories.\n" +
+                          "usage: scan (organization|user) [<repo-owner> ]" +
+                          "[--license <license-name>] [--oauth <token>] " +
+                          "[--primary-language <language>] [--type <repo-type>]"
 
     // MARK: - Initializers
 
