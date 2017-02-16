@@ -17,6 +17,7 @@ public enum ScanOptionsError: GitHubScannerProtocolError {
     case invalidRepositoryType(value: String)
     case missingAuthorization
     case missingOwner
+    case unknown(error: Error)
 }
 
 
@@ -62,42 +63,59 @@ public struct ScanOptions: OptionsProtocol {
     // MARK: - Validate Options
 
     public func validateConfiguration() -> Result<(), ScanOptionsError> {
-        guard let categoryType = ScanCategory(rawValue: category) else {
-            let error = ScanOptionsError.invalidCategory(value: category)
+        do {
+            let categoryType = try validateCategory()
+
+            try validateOwner(categoryType: categoryType)
+            try validateRepositoryType(categoryType: categoryType)
+
+            return .success()
+        } catch let error as ScanOptionsError {
             return .failure(error)
+        } catch {
+            return .failure(ScanOptionsError.unknown(error: error))
+        }
+    }
+
+    @discardableResult
+    private func validateCategory() throws -> ScanCategory {
+        guard let categoryType = ScanCategory(rawValue: category) else {
+            throw ScanOptionsError.invalidCategory(value: category)
         }
 
+        return categoryType
+    }
+
+    private func validateOwner(categoryType: ScanCategory) throws {
         switch categoryType {
-            case .organization:
-                guard !owner.isEmpty else {
-                    let error = ScanOptionsError.missingOwner
-                    return .failure(error)
-                }
-
-                guard let _ = OrganizationRepositoriesType(rawValue: repositoryType) else {
-                    let error = ScanOptionsError.invalidRepositoryType(value: repositoryType)
-                    return .failure(error)
-                }
-            case .user:
-                guard !(owner.isEmpty && oauthToken.isEmpty) else {
-                    let error = ScanOptionsError.missingAuthorization
-                    return .failure(error)
-                }
-
-                if owner.isEmpty {
-                    guard let _ = SelfRepositoriesType(rawValue: repositoryType) else {
-                        let error = ScanOptionsError.invalidRepositoryType(value: repositoryType)
-                        return .failure(error)
-                    }
-                } else {
-                    guard let _ = UserRepositoriesType(rawValue: repositoryType) else {
-                        let error = ScanOptionsError.invalidRepositoryType(value: repositoryType)
-                        return .failure(error)
-                    }
-                }
+        case .organization:
+            guard !owner.isEmpty else {
+                throw ScanOptionsError.missingOwner
+            }
+        case .user:
+            guard !(owner.isEmpty && oauthToken.isEmpty) else {
+                throw ScanOptionsError.missingAuthorization
+            }
         }
+    }
 
-        return .success()
+    private func validateRepositoryType(categoryType: ScanCategory) throws {
+        switch categoryType {
+        case .organization:
+            try validateRepositoryType(type: OrganizationRepositoriesType.self)
+        case .user:
+            if owner.isEmpty {
+                try validateRepositoryType(type: SelfRepositoriesType.self)
+            } else {
+                try validateRepositoryType(type: UserRepositoriesType.self)
+            }
+        }
+    }
+
+    private func validateRepositoryType<T: RawRepresentable>(type: T.Type) throws where T.RawValue == String {
+        guard let _ = T(rawValue: repositoryType) else {
+            throw ScanOptionsError.invalidRepositoryType(value: repositoryType)
+        }
     }
 
     // MARK: - OptionsProtocol
