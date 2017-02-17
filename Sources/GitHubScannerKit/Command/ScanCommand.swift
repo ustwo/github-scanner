@@ -53,11 +53,14 @@ public struct ScanCommand: CommandProtocol {
 
         // Fetch
 
-        let needsLicense = !options.license.isEmpty
+        var acceptHeader = GitHubAcceptHeaders.default
+        if !options.license.isEmpty {
+            acceptHeader = GitHubAcceptHeaders.openSourceLicenseUse
+        }
         let fetchResult = RepositoriesAPI.recursivelyFetchRepositories(url: url,
-                                                                       needsLicense: needsLicense,
                                                                        repositoryType: options.repositoryType,
-                                                                       oauthToken: options.oauthToken)
+                                                                       oauthToken: options.oauthToken,
+                                                                       acceptHeader: acceptHeader)
 
         var result: Repositories
         switch fetchResult {

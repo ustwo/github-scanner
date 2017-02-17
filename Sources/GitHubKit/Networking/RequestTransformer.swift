@@ -19,6 +19,6 @@ public protocol RequestTransformer {
 
 public enum RequestTransformers {
     public static let addURLParameters = EncodeURLParameters()
-    public static let apiPreview = APIPreviewEndpoint()
+    public static let addAcceptHeader = AddAcceptHeader()
     public static let authorize = AuthorizeRequest()
 }

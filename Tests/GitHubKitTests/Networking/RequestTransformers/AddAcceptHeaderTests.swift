@@ -1,5 +1,5 @@
 //
-//  APIPreviewEndpointTests.swift
+//  AddAcceptHeaderTests.swift
 //  GitHub Scanner
 //
 //  Created by Aaron McTavish on 14/02/2017.
@@ -15,7 +15,7 @@ import Foundation
 import XCTest
 
 
-final class APIPreviewEndpointTests: XCTestCase {
+final class AddAcceptHeaderTests: XCTestCase {
 
 
     // MARK: - Tests
@@ -26,7 +26,7 @@ final class APIPreviewEndpointTests: XCTestCase {
         let expectedHeaderValue = "ABC123"
 
         // When
-        RequestTransformers.apiPreview.transform(request: &request, value: expectedHeaderValue)
+        RequestTransformers.addAcceptHeader.transform(request: &request, value: expectedHeaderValue)
         guard let actualHeaderValue = request.value(forHTTPHeaderField: "Accept") else {
             XCTFail("Missing 'Accept' HTTP Header Field.")
             return
@@ -44,7 +44,7 @@ final class APIPreviewEndpointTests: XCTestCase {
         let previewHeader = true
 
         // When
-        RequestTransformers.authorize.transform(request: &request, value: previewHeader)
+        RequestTransformers.addAcceptHeader.transform(request: &request, value: previewHeader)
         let actualHeaderValue = request.value(forHTTPHeaderField: "Accept")
 
         // Then

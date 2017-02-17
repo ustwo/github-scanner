@@ -1,5 +1,5 @@
 //
-//  APIPreviewEndpoint.swift
+//  AddAcceptHeader.swift
 //  GitHub Scanner
 //
 //  Created by Aaron McTavish on 14/02/2017.
@@ -10,7 +10,7 @@
 import Foundation
 
 
-public final class APIPreviewEndpoint: RequestTransformer {
+public final class AddAcceptHeader: RequestTransformer {
 
 
     // MARK: - Types
@@ -22,11 +22,11 @@ public final class APIPreviewEndpoint: RequestTransformer {
 
     // MARK: - RequestTransformer
 
-    /// Adds the accept header to the `URLRequest` for the API Preview.
+    /// Adds the accept header to the `URLRequest`.
     ///
     /// - Parameters:
     ///   - request: `URLRequest` to adapt.
-    ///   - value: API Preview accept header to use. Must be a `String`.
+    ///   - value: Accept header to use. Must be a `String`.
     ///
     /// - Note: If `value` is not a `String`, then no modification will take place and method will fail silently.
     public func transform(request: inout URLRequest, value: Any) {
