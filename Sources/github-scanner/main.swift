@@ -16,9 +16,13 @@ DispatchQueue.global().async {
     let registry = CommandRegistry<GitHubScannerError>()
 
     registry.register(ScanCommand())
-    registry.register(HelpCommand(registry: registry))
+    registry.register(VersionCommand())
 
-    registry.main(defaultVerb: HelpCommand(registry: registry).verb) { error in
+    let helpCommand = HelpCommand(registry: registry)
+
+    registry.register(helpCommand)
+
+    registry.main(defaultVerb: helpCommand.verb) { error in
         print(String(describing: error))
     }
 }
