@@ -22,9 +22,8 @@ public struct RepositoriesAPI {
     // MARK: - Types
 
     private struct Constants {
-        static let nullOption = "NULL"
-        static let openSourceLicenseUseAcceptHeader = "application/vnd.github.drax-preview+json"
-        static let repositoryTypeParameterKey       = "type"
+        static let nullOption                   = "NULL"
+        static let repositoryTypeParameterKey   = "type"
     }
 
 
@@ -32,7 +31,9 @@ public struct RepositoriesAPI {
 
     public static func recursivelyFetchRepositories(url: URL,
                                                     repositoryType: String,
-                                                    oauthToken: String?) -> Result<Repositories, NetworkError> {
+                                                    oauthToken: String?,
+                                                    acceptHeader: GitHubAcceptHeaders = GitHubAcceptHeaders.default) ->
+                                                    Result<Repositories, NetworkError> {
 
         let semaphore = DispatchSemaphore(value: 0)
 
@@ -51,8 +52,8 @@ public struct RepositoriesAPI {
         }
 
         var request = URLRequest(url: url)
-        RequestTransformers.apiPreview.transform(request: &request,
-                                                 value: Constants.openSourceLicenseUseAcceptHeader)
+        RequestTransformers.addAcceptHeader.transform(request: &request,
+                                                      value: acceptHeader.rawValue)
         RequestTransformers.addURLParameters.transform(request: &request,
                                                        value: [Constants.repositoryTypeParameterKey:
                                                                repositoryType])
@@ -70,7 +71,8 @@ public struct RepositoriesAPI {
 
             let recursiveResult = RepositoriesAPI.recursivelyFetchRepositories(url: nextURL,
                                                                                repositoryType: repositoryType,
-                                                                               oauthToken: oauthToken)
+                                                                               oauthToken: oauthToken,
+                                                                               acceptHeader: acceptHeader)
 
             switch recursiveResult {
             case let .success(fetchedRepositories):

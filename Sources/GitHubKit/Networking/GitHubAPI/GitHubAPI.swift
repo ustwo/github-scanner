@@ -9,6 +9,12 @@
 import Foundation
 
 
+public enum GitHubAcceptHeaders: String {
+    case `default` = "application/vnd.github.v3+json"
+    case openSourceLicenseUse = "application/vnd.github.drax-preview+json"
+}
+
+
 public struct GitHubAPI {
 
     fileprivate static let baseURL = "https://api.github.com"
