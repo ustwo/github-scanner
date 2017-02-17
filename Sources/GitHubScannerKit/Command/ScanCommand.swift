@@ -53,7 +53,9 @@ public struct ScanCommand: CommandProtocol {
 
         // Fetch
 
+        let needsLicense = !options.license.isEmpty
         let fetchResult = RepositoriesAPI.recursivelyFetchRepositories(url: url,
+                                                                       needsLicense: needsLicense,
                                                                        repositoryType: options.repositoryType,
                                                                        oauthToken: options.oauthToken)
 

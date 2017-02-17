@@ -31,6 +31,7 @@ public struct RepositoriesAPI {
     // MARK: - Fetch
 
     public static func recursivelyFetchRepositories(url: URL,
+                                                    needsLicense: Bool,
                                                     repositoryType: String,
                                                     oauthToken: String?) -> Result<Repositories, NetworkError> {
 
@@ -51,8 +52,12 @@ public struct RepositoriesAPI {
         }
 
         var request = URLRequest(url: url)
-        RequestTransformers.apiPreview.transform(request: &request,
-                                                 value: Constants.openSourceLicenseUseAcceptHeader)
+
+        if needsLicense {
+            RequestTransformers.apiPreview.transform(request: &request,
+                                                    value: Constants.openSourceLicenseUseAcceptHeader)
+        }
+
         RequestTransformers.addURLParameters.transform(request: &request,
                                                        value: [Constants.repositoryTypeParameterKey:
                                                                repositoryType])
@@ -69,6 +74,7 @@ public struct RepositoriesAPI {
             let nextURL = URL(string: headerLink) {
 
             let recursiveResult = RepositoriesAPI.recursivelyFetchRepositories(url: nextURL,
+                                                                               needsLicense: needsLicense,
                                                                                repositoryType: repositoryType,
                                                                                oauthToken: oauthToken)
 
