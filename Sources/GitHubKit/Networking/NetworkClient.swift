@@ -3,20 +3,13 @@
 //  GitHub Scanner
 //
 //  Created by Aaron McTavish on 09/02/2017.
-//  Copyright © 2016 ustwo Fampany Ltd. All rights reserved.
+//  Copyright © 2017 ustwo Fampany Ltd. All rights reserved.
 //
 
 
 // swiftlint:disable large_tuple
 
 import Foundation
-
-
-public enum NetworkError: Error {
-    case failedRequest(status: Int)
-    case invalidJSON
-    case unknown(error: Error?)
-}
 
 
 public final class NetworkClient {

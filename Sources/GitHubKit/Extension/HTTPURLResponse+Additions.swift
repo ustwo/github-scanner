@@ -3,7 +3,7 @@
 //  GitHub Scanner
 //
 //  Created by Aaron McTavish on 10/02/2017.
-//  Copyright © 2016 ustwo Fampany Ltd. All rights reserved.
+//  Copyright © 2017 ustwo Fampany Ltd. All rights reserved.
 //
 
 import Foundation
@@ -14,6 +14,17 @@ import Foundation
 extension HTTPURLResponse {
 
 
+    // MARK: - Types
+
+    private struct Constants {
+        static let nextLinkHeader = "next"
+        static let urlHeaderValue = "url"
+    }
+
+
+    // MARK: - Properties
+
+    /// Parses the link headers from the `HTTPURLResponse` and returns a dictionary.
     public var links: [String: [String: String]] {
         var result = [String: [String: String]]()
 
@@ -55,6 +66,11 @@ extension HTTPURLResponse {
         }
 
         return result
+    }
+
+    /// Returns the 'next' link header, if it exists.
+    public var nextLink: String? {
+        return links[Constants.nextLinkHeader]?[Constants.urlHeaderValue]
     }
 
 }

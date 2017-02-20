@@ -12,38 +12,6 @@ import GitHubKit
 import Result
 
 
-public enum ScanOptionsError: GitHubScannerProtocolError {
-    case invalidCategory(value: String)
-    case invalidRepositoryType(value: String)
-    case missingAuthorization
-    case missingOwner
-    case unknown(error: Error)
-}
-
-
-extension ScanOptionsError: Equatable {
-
-    public static func == (lhs: ScanOptionsError, rhs: ScanOptionsError) -> Bool {
-        switch (lhs, rhs) {
-        case (let .invalidCategory(lhsValue), let .invalidCategory(rhsValue)):
-            return lhsValue == rhsValue
-
-        case (let .invalidRepositoryType(lhsValue), let .invalidRepositoryType(rhsValue)):
-            return lhsValue == rhsValue
-
-        case (.missingAuthorization, .missingAuthorization),
-             (.missingOwner, .missingOwner):
-
-                return true
-
-        default:
-            return false
-        }
-    }
-
-}
-
-
 public struct ScanOptions: OptionsProtocol {
 
 

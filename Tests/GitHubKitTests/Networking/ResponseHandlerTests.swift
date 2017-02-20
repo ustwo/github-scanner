@@ -7,14 +7,32 @@
 //
 
 
-// swiftlint:disable force_unwrapping force_try
+// swiftlint:disable force_unwrapping force_try large_tuple
 
 import Foundation
 @testable import GitHubKit
 import XCTest
 
 
-final class JSONResponseHandlerTests: XCTestCase {
+typealias NetworkErrorAssertion = (NetworkError) -> Void
+
+
+struct MockResponseHandler: ResponseHandler {
+
+    func process<Output: JSONInitializable>(data: Data?,
+                                            response: URLResponse?,
+                                            error: Error?,
+                                            completion: ((_ result: Output?,
+                                                          _ linkHeader: String?,
+                                                          _ error: NetworkError?) -> Void)?) {
+
+        completion?(nil, nil, nil)
+    }
+
+}
+
+
+final class ResponseHandlerTests: XCTestCase {
 
 
     // MARK: - Types
@@ -24,111 +42,58 @@ final class JSONResponseHandlerTests: XCTestCase {
 
     // MARK: - Properties
 
-    let handler = JSONResponseHandler()
+    let handler = MockResponseHandler()
     let defaultResponse = HTTPURLResponse(url: URL(string: "http://foo.com")!,
                                           statusCode: 200,
                                           httpVersion: "HTTP/1.1",
                                           headerFields: [String: String]())
 
 
-    // MARK: - Test Success
-
-    func testProcessSuccess() {
-        // Given
-        let expectedID = 1234
-        let expectedURL = URL(string: "http://foo.com")!
-        let expectedName = "foo"
-
-        let repositoryJSON: [[String: Any]] = [["id": expectedID,
-                                                "html_url": expectedURL.absoluteString,
-                                                "name": expectedName]]
-        let repositoryData = try! JSONSerialization.data(withJSONObject: repositoryJSON)
-
-        // When
-        let completionHandler: RepositoryCompletionHandler = { repository, link, error in
-            guard error == nil else {
-                XCTFail("Expected no error but found error: \(error)")
-                return
-            }
-
-            guard let repositories = repository,
-                let responseRepository = repositories.first else {
-
-                    XCTFail("Expected success repository deserialization, but found nil.")
-                    return
-            }
-
-            XCTAssertEqual(expectedID,
-                           responseRepository.identifier,
-                           "Expected id: \(expectedID) but found \(responseRepository.identifier)")
-
-            XCTAssertEqual(expectedURL,
-                           responseRepository.htmlURL,
-                           "Expected html_url: \(expectedURL.absoluteString) " +
-                           "but found \(responseRepository.htmlURL.absoluteString)")
-
-            XCTAssertEqual(expectedName,
-                           responseRepository.name,
-                           "Expected name: \(expectedName) but found \(responseRepository.name)")
-        }
-
-        // Then
-        assertHandlerProcess(data: repositoryData,
-                             response: defaultResponse,
-                             error: nil,
-                             completion: completionHandler)
-    }
-
-
-    // MARK: - Test Failure
+    // MARK: - Test Validation
 
     func testNoDataFailure() {
-        // When
-        let completionHandler: RepositoryCompletionHandler = { repository, link, error in
-            guard let responseError = error,
-                case .unknown = responseError else {
-
-                    XCTFail("Expected unknown but found error: \(error)")
-                    return
+        // Then
+        let assertion: NetworkErrorAssertion = { error in
+            guard case .unknown = error else {
+                XCTFail("Expected unknown but found error: \(error)")
+                return
             }
         }
 
-        // Then
-        assertHandlerProcess(data: nil,
-                             response: defaultResponse,
-                             error: nil,
-                             completion: completionHandler)
+        assertValidationFailure(data: nil,
+                                response: defaultResponse,
+                                error: nil,
+                                errorAssertion: assertion)
     }
 
     func testNoResponseFailure() {
-        // When
-        let completionHandler: RepositoryCompletionHandler = { repository, link, error in
-            guard let responseError = error,
-                case .unknown = responseError else {
-
-                    XCTFail("Expected unknown but found error: \(error)")
-                    return
+        // Then
+        let assertion: NetworkErrorAssertion = { error in
+            guard case .unknown = error else {
+                XCTFail("Expected unknown but found error: \(error)")
+                return
             }
         }
 
-        // Then
-        assertHandlerProcess(data: Data(),
-                             response: nil,
-                             error: nil,
-                             completion: completionHandler)
+        assertValidationFailure(data: Data(),
+                                response: nil,
+                                error: nil,
+                                errorAssertion: assertion)
     }
 
     func testFailedStatusCode() {
         // Given
         let expectedStatusCode = 404
+        let response = HTTPURLResponse(url: URL(string: "http://foo.com")!,
+                                       statusCode: expectedStatusCode,
+                                       httpVersion: "HTTP/1.1",
+                                       headerFields: [String: String]())
 
-        // When
-        let completionHandler: RepositoryCompletionHandler = { repository, link, error in
-            guard let responseError = error,
-                case .failedRequest(let statusCode) = responseError else {
-
-                    XCTFail("Expected failedRequest but found error: \(error)")
-                    return
+        // Then
+        let assertion: NetworkErrorAssertion = { error in
+            guard case .failedRequest(let statusCode) = error else {
+                XCTFail("Expected failedRequest but found error: \(error)")
+                return
             }
 
             XCTAssertEqual(statusCode,
@@ -136,59 +101,83 @@ final class JSONResponseHandlerTests: XCTestCase {
                            "Expected statusCode: \(expectedStatusCode) but found \(statusCode)")
         }
 
-        // Then
-        assertHandlerProcess(data: Data(),
-                             response: HTTPURLResponse(url: URL(string: "http://foo.com")!,
-                                                       statusCode: expectedStatusCode,
-                                                       httpVersion: "HTTP/1.1",
-                                                       headerFields: [String: String]()),
-                             error: nil,
-                             completion: completionHandler)
+        assertValidationFailure(data: Data(),
+                                response: response,
+                                error: nil,
+                                errorAssertion: assertion)
     }
 
-    func testInvalidJSONFailure() {
+    func testRateLimitedFailure() {
         // Given
-        let badRepositoryJSON: [[String: Any]] = [["id": 1234]]
-        let badRepositoryData = try! JSONSerialization.data(withJSONObject: badRepositoryJSON)
+        let response = HTTPURLResponse(url: URL(string: "http://foo.com")!,
+                                                       statusCode: 401,
+                                                       httpVersion: "HTTP/1.1",
+                                                       headerFields: ["X-RateLimit-Remaining": "0"])
 
-        // When
-        let completionHandler: RepositoryCompletionHandler = { repository, link, error in
-            guard let responseError = error,
-                case .invalidJSON = responseError else {
-
-                    XCTFail("Expected invalidJSON but found error: \(error)")
-                    return
+        // Then
+        let assertion: NetworkErrorAssertion = { error in
+            guard case .rateLimited = error else {
+                XCTFail("Expected rateLimited but found error: \(error)")
+                return
             }
         }
 
+        assertValidationFailure(data: Data(),
+                                response: response,
+                                error: nil,
+                                errorAssertion: assertion)
+    }
+
+    func testUnauthorizedFailure() {
+        // Given
+        let response = HTTPURLResponse(url: URL(string: "http://foo.com")!,
+                                                       statusCode: 401,
+                                                       httpVersion: "HTTP/1.1",
+                                                       headerFields: [String: String]())
+
         // Then
-        assertHandlerProcess(data: badRepositoryData,
-                             response: defaultResponse,
-                             error: nil,
-                             completion: completionHandler)
+        let assertion: NetworkErrorAssertion = { error in
+            guard case .unauthorized = error else {
+                XCTFail("Expected unauthorized but found error: \(error)")
+                return
+            }
+        }
+
+        assertValidationFailure(data: Data(),
+                                response: response,
+                                error: nil,
+                                errorAssertion: assertion)
     }
 
 
     // MARK: - Convenience
 
-    private func assertHandlerProcess(data: Data?,
-                                      response: URLResponse?,
-                                      error: Error?,
-                                      completion: @escaping RepositoryCompletionHandler) {
+    private func assertValidationFailure(data: Data?,
+                                         response: URLResponse?,
+                                         error: Error?,
+                                         errorAssertion: @escaping NetworkErrorAssertion) {
 
-        let completionExpectation = expectation(description:"completionExpectation")
-        let expectationHandler: RepositoryCompletionHandler = { repository, link, error in
+        let assertionExpectation = expectation(description:"assertionExpectation")
+        let expectationHandler: NetworkErrorAssertion = { error in
             defer {
-                completionExpectation.fulfill()
+                assertionExpectation.fulfill()
             }
 
-            completion(repository, link, error)
+            errorAssertion(error)
         }
 
-        handler.process(data: data,
-                        response: response,
-                        error: error,
-                        completion: expectationHandler)
+        // When
+        let validationResult = MockResponseHandler.validateResponse(data: data,
+                                                                    response: response,
+                                                                    error: error)
+
+        // Then
+        switch validationResult {
+        case .success:
+            XCTFail("Expected validation to fail, but succeeded.")
+        case let .failure(validationError):
+            expectationHandler(validationError)
+        }
 
         waitForExpectations(timeout: 2.0)
         XCTAssertTrue(true)
