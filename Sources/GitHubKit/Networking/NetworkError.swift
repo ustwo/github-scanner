@@ -33,7 +33,7 @@ extension NetworkError {
         case .unauthorized:
             return "Not authorized"
         case let .unknown(error):
-                if let localError = error as? LocalizedError,
+            if let localError = error as? LocalizedError,
                 let description = localError.errorDescription {
 
                 return "Unknown Error: " + description
