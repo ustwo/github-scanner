@@ -11,9 +11,13 @@
 
 
 import Foundation
+import Result
 
 
 public final class JSONResponseHandler: ResponseHandler {
+
+
+    // MARK: - ResponseHandler
 
     public func process<Output: JSONInitializable>(data: Data?,
                                                    response: URLResponse?,
@@ -22,29 +26,42 @@ public final class JSONResponseHandler: ResponseHandler {
                                                                  _ linkHeader: String?,
                                                                  _ error: NetworkError?) -> Void)?) {
 
-        guard let httpResponse = response as? HTTPURLResponse,
-            let data = data else {
+        let validationResult = JSONResponseHandler.validateResponse(data: data,
+                                                                    response: response,
+                                                                    error: error)
 
-                completion?(nil, nil, NetworkError.unknown(error: error))
+        switch validationResult {
+        case let .success(body, httpResponse):
+            let deserializationResult: Result<Output, NetworkError> = deserializeJSON(data: body)
+
+            switch deserializationResult {
+            case let .success(result):
+                completion?(result, httpResponse.nextLink, nil)
                 return
-        }
 
-        guard 200..<300 ~= httpResponse.statusCode else {
-            completion?(nil, nil, NetworkError.failedRequest(status: httpResponse.statusCode))
+            case let .failure(deserializationError):
+                completion?(nil, nil, deserializationError)
+                return
+            }
+
+        case let .failure(validationError):
+            completion?(nil, nil, validationError)
             return
         }
+    }
 
-        if let json = try? JSONSerialization.jsonObject(with: data),
-            let result = Output(json: json) {
+    /// Deserializes the JSON into a model, if possible.
+    ///
+    /// - Parameter data: The JSON `Data` to deserialize.
+    /// - Returns: If success, returns the deserialized model. Otherwise, returns a `NetworkError`.
+    func deserializeJSON<Output: JSONInitializable>(data: Data) -> Result<Output, NetworkError> {
+        guard let json = try? JSONSerialization.jsonObject(with: data),
+            let result = Output(json: json) else {
 
-            let links = httpResponse.links
-            let link = links["next"]?["url"]
-            completion?(result, link, nil)
-            return
+            return .failure(NetworkError.invalidJSON)
         }
 
-        completion?(nil, nil, NetworkError.invalidJSON)
-        return
+        return .success(result)
     }
 
 }
