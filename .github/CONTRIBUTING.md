@@ -44,6 +44,22 @@ You can quickly run the test suite. From the project directory, use the followin
 make test
 ```
 
+## Release
+
+Before releasing, ensure both the version command and the `.app-version` files have been updated with the new version number.
+
+To create the release tag and the release on GitHub, use the following terminal command:
+
+```sh
+make release-create
+```
+
+Then to build the tool for release and upload to GitHub, run:
+
+```sh
+make release-artifacts
+```
+
 <!-- Links -->
 
 [changelog]: ../CHANGELOG.md
