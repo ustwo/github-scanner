@@ -9,13 +9,17 @@
 import Foundation
 
 
+/// Represents the open-source license info for a repository.
 public struct RepositoryLicenseInfo {
 
 
     // MARK: - Properties
 
+    /// Key name for the license. Used for GitHub searches and uri creation.
     public let key: String?
+    /// User friendly name for the license.
     public let name: String?
+    /// URL to the canonical copy of the license (not neccessarily located in the repository).
     public let url: URL?
 
 }

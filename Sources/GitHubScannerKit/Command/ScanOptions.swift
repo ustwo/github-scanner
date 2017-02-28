@@ -12,24 +12,43 @@ import GitHubKit
 import Result
 
 
+/// Options for the `scan` command.
 public struct ScanOptions: OptionsProtocol {
 
 
     // MARK: - Properties
 
     // Arguments
+
+    /// Category of repositories. Must be a `String` representation of `ScanCategory`.
     public let category: String
+    /// Owner of the repositories. Default is an empty string.
     public let owner: String
 
     // Options
+    
+    /// Open-source license on which to filter repositories.
+    ///  Default is an empty string, which does no filtering.
+    ///  To filter for repositories with no license, use "NULL".
     public let license: String
+    /// OAuth token to use for authorization.
+    ///  Default is an empty string, which means the requests will not be authorized.
     public let oauthToken: String
+    /// Primary programming language on which to filter repositories.
+    ///  Default is an empty string, which does no filtering.
+    ///  To filter for repositories with no primary language, use "NULL".
     public let primaryLanguage: String
+    /// Type of repositories to filter.
+    ///  Must be a `String` representation of `SelfRepositoriesType`, `UserRepositoriesType`,
+    ///  or `OrganizationRepositoriesType` depending on `category` and `owner`.
     public let repositoryType: String
 
 
     // MARK: - Validate Options
 
+    /// Validates the all of the options.
+    ///
+    /// - Returns: Returns a `Result` type with a void success or a `ScanOptionsError` if failure indicating the failure reason.
     public func validateConfiguration() -> Result<(), ScanOptionsError> {
         do {
             let categoryType = try validateCategory()
@@ -45,6 +64,10 @@ public struct ScanOptions: OptionsProtocol {
         }
     }
 
+    /// Validates the `category` option.
+    ///
+    /// - Returns: Returns a deserialized `ScanCategory` if it is a valid option.
+    /// - Throws: `ScanOptionsError` if the `category` option is not valid.
     @discardableResult
     private func validateCategory() throws -> ScanCategory {
         guard let categoryType = ScanCategory(rawValue: category) else {
@@ -54,6 +77,10 @@ public struct ScanOptions: OptionsProtocol {
         return categoryType
     }
 
+    /// Validates the `owner` option.
+    ///
+    /// - Parameter categoryType: The `ScanCategory` type to which the owner belongs.
+    /// - Throws: `ScanOptionsError` if the `owner` option is not valid.
     private func validateOwner(categoryType: ScanCategory) throws {
         switch categoryType {
         case .organization:
@@ -67,6 +94,10 @@ public struct ScanOptions: OptionsProtocol {
         }
     }
 
+    /// Validates the `repositoryType` option.
+    ///
+    /// - Parameter categoryType: The `ScanCategory` type to which the repositories belong.
+    /// - Throws: `ScanOptionsError` if the `repositoryType` option is not valid.
     private func validateRepositoryType(categoryType: ScanCategory) throws {
         switch categoryType {
         case .organization:
@@ -124,6 +155,7 @@ public struct ScanOptions: OptionsProtocol {
 }
 
 
+/// Category of repositories.
 public enum ScanCategory: String {
     case organization
     case user
@@ -136,6 +168,7 @@ public enum ScanCategory: String {
 }
 
 
+/// Type of repositories to filter when searching own repositories.
 public enum SelfRepositoriesType: String {
     case all
     case `private`
@@ -149,6 +182,7 @@ public enum SelfRepositoriesType: String {
 }
 
 
+/// Type of repositories to filter when searching a user's repositories.
 public enum UserRepositoriesType: String {
     case all
     case member
@@ -162,6 +196,7 @@ public enum UserRepositoriesType: String {
 }
 
 
+/// Type of repositories to filter when searching an organization's repositories.
 public enum OrganizationRepositoriesType: String {
     case all
     case forks

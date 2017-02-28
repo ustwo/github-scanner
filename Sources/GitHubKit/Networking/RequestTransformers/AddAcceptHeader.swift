@@ -10,6 +10,7 @@
 import Foundation
 
 
+/// Adds an accept header to a `URLRequest`.
 public final class AddAcceptHeader: RequestTransformer {
 
 

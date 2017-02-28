@@ -14,6 +14,7 @@ import Foundation
 import Result
 
 
+/// Deserializes the JSON returned from a network response.
 public final class JSONResponseHandler: ResponseHandler {
 
 

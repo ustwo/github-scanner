@@ -12,9 +12,11 @@ import Foundation
 import Result
 
 
+/// The current version of the tool.
 private let version = "0.1.0"
 
 
+/// Command to display the version of the tool.
 public struct VersionCommand: CommandProtocol {
 
 

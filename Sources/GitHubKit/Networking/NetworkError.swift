@@ -10,6 +10,13 @@
 import Foundation
 
 
+/// Errors that can be returned by the `NetworkClient`.
+///
+/// - failedRequest: A network response was returned with a status code not in the 200 series.
+/// - invalidJSON: The JSON was unable to be serialized into the desired type.
+/// - rateLimited: The response was denied due to exceeding the rate limits.
+/// - unauthorized: The network request could not be completed due to not having sufficient authorization.
+/// - unknown: An unknown network error occurred.
 public enum NetworkError: LocalizedError {
     case failedRequest(status: Int)
     case invalidJSON

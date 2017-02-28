@@ -10,6 +10,7 @@
 import Foundation
 
 
+/// Adds an authorization header to the `URLRequest`.
 public final class AuthorizeRequest: RequestTransformer {
 
 

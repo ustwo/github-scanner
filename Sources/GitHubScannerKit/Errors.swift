@@ -11,6 +11,7 @@ import Foundation
 import GitHubKit
 
 
+/// Generic error for github-scanner.
 public protocol GitHubScannerProtocolError: LocalizedError, CustomStringConvertible {}
 
 
@@ -27,6 +28,10 @@ extension GitHubScannerProtocolError {
 }
 
 
+/// Collection of github-scanner errors. Wraps both internal and generic external errors.
+///
+/// - `internal`: Wrapper for any internal error type.
+/// - external: Wrapper for any external error type.
 public enum GitHubScannerError: GitHubScannerProtocolError {
     case `internal`(GitHubScannerProtocolError)
     case external(Error)
