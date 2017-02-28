@@ -13,16 +13,29 @@ import Foundation
 import Result
 
 
+/// Result type returned from a network validation.
+///     If successful, returns a `Data` representation of the body and an `HTTPURLResponse`.
+///     If failure, returns a `NetworkError` with specifics about why the response failed validation.
 public typealias NetworkValidationResult = Result<(Data, HTTPURLResponse), NetworkError>
 
 
+/// Collection of response handlers.
 public enum ResponseHandlers {
+    /// Default response handler, which deserializes JSON into a given type.
     static let `default` = JSONResponseHandler()
 }
 
 
+/// Type that conforms to `ResponseHandler` modifies processes data returned from a network request.
 public protocol ResponseHandler {
 
+    /// Process the data from a network request.
+    ///
+    /// - Parameters:
+    ///   - data: `Data` returned from the network request, if any exist.
+    ///   - response: The `URLResponse` returned from the network request, if any.
+    ///   - error: A generic network error, if any, if there was a problem making the request.
+    ///   - completion: The completion handler the return the results of the processing.
     func process<Output: JSONInitializable>(data: Data?,
                                             response: URLResponse?,
                                             error: Error?,

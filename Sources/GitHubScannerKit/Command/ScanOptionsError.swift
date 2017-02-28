@@ -11,6 +11,13 @@ import Foundation
 import GitHubKit
 
 
+/// Error from the `scan` command.
+///
+/// - invalidCategory: The category specified is invalid.
+/// - invalidRepositoryType: The repository type specified is invalid.
+/// - missingAuthorization: The authorization for the request is missing or insufficient.
+/// - missingOwner: The owner of the repositories is not specified.
+/// - unknown: Unknown error.
 public enum ScanOptionsError: GitHubScannerProtocolError {
     case invalidCategory(value: String)
     case invalidRepositoryType(value: String)

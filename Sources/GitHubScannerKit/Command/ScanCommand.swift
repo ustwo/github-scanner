@@ -13,6 +13,7 @@ import Result
 import SwiftyTextTable
 
 
+/// Command to scan a collection of GitHub repositories.
 public struct ScanCommand: CommandProtocol {
 
 

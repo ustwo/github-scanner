@@ -10,7 +10,9 @@
 import Foundation
 
 
-/// Adapted from: https://github.com/Alamofire/Alamofire
+/// Encodes url parameters into a `URLRequest`.
+///
+/// - Note: Adapted from: https://github.com/Alamofire/Alamofire
 public final class EncodeURLParameters: RequestTransformer {
 
 

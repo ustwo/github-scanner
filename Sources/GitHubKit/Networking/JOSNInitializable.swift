@@ -9,6 +9,7 @@
 import Foundation
 
 
+/// Types that conform to `JSONInitializable` can deserialize themselves from a JSON dictionary or array.
 public protocol JSONInitializable {
 
     init?(json: Any)

@@ -16,6 +16,7 @@ public typealias Repositories = ArrayFoo<Repository>
 public typealias RepositoryFetchCompletion = (Repositories?, String?, NetworkError?) -> Void
 
 
+/// Collection of static methods for interacting with the Repositories section of the GitHub API.
 public struct RepositoriesAPI {
 
 
@@ -29,6 +30,16 @@ public struct RepositoriesAPI {
 
     // MARK: - Fetch
 
+    /// Fetches all the repositories using a given API url. It will use the next link header recursively calling itself until all repositories have been fetched.
+    ///
+    /// - Parameters:
+    ///   - url: `URL` for the API endpoint.
+    ///   - repositoryType: The 'type' parameter to encode into the url specifying the type of repositories to search for. This is endpoint specific.
+    ///   - oauthToken: The OAuth token to use for authorization. Optional.
+    ///   - acceptHeader: The accept header to specify which version of the API to use. Defaults to `GitHubAcceptHeaders.default`.
+    /// - Returns: The result of the network request.
+    ///             If successful, it returns a collection of `Repository`.
+    ///             If failure, returns a `NetworkError` representing the issue encountered.
     public static func recursivelyFetchRepositories(url: URL,
                                                     repositoryType: String,
                                                     oauthToken: String?,
@@ -92,6 +103,12 @@ public struct RepositoriesAPI {
 
     // MARK: - Filter
 
+    /// Filters the repositories based on the pimrary programming language of the repository.
+    ///
+    /// - Parameters:
+    ///   - repositories: The repositories to filter.
+    ///   - primaryLanguage: The desired programming language. To filter on repositories which do not have a primary language, use "NULL".
+    /// - Returns: The filtered repositories.
     public static func filter(repositories: Repositories, byPrimaryLanguage primaryLanguage: String) -> Repositories {
         guard !primaryLanguage.isEmpty else {
             return repositories
@@ -116,6 +133,12 @@ public struct RepositoriesAPI {
         return Repositories(elements: repositories.filter(languageFilter))
     }
 
+    /// Filters the repositories based on the license name of the repository.
+    ///
+    /// - Parameters:
+    ///   - repositories: The repositories to filter.
+    ///   - license: The desired programming language (e.g. "MIT License"). To filter on repositories which do not have an obvious license, use "NULL".
+    /// - Returns: The filtered repositories.
     public static func filter(repositories: Repositories, byLicense license: String) -> Repositories {
         guard !license.isEmpty else {
             return repositories
