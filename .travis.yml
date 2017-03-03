@@ -10,6 +10,8 @@ matrix:
       before_install:
         - make dependencies
         - make build
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
     - script:
         - make test
       env: JOB=SwiftPM
