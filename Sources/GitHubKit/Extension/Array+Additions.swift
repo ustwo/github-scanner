@@ -37,7 +37,7 @@ import Foundation
 // }
 
 
-public struct ArrayFoo<Element: JSONInitializable>: JSONInitializable {
+public struct DecodableArray<Element: JSONInitializable>: JSONInitializable {
 
     public var elements: [Element] = []
 
@@ -73,7 +73,7 @@ public struct ArrayFoo<Element: JSONInitializable>: JSONInitializable {
 }
 
 
-extension ArrayFoo: Collection {
+extension DecodableArray: Collection {
 
     public var startIndex: Int { return 0 }
 
