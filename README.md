@@ -1,6 +1,7 @@
 # GitHub Scanner
 
 [![Build Status](https://travis-ci.org/ustwo/github-scanner.svg?branch=master)](https://travis-ci.org/ustwo/github-scanner)
+[![codecov.io](https://codecov.io/github/ustwo/github-scanner/coverage.svg?branch=master)](https://codecov.io/github/ustwo/github-scanner?branch=master)
 [![Twitter](https://img.shields.io/badge/twitter-@ustwo-blue.svg?style=flat)](http://twitter.com/ustwo)
 
 This is a commandline tool for scanning GitHub repositories. It is built by developers at [ustwo][ustwo].
