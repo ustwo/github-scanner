@@ -1,8 +1,10 @@
 RUBY := $(shell which ruby)
 BREW := $(shell which brew)
+BUNDLER := $(shell which bundler)
 GITHUB_RELEASE := $(shell which github-release)
 SWIFT := $(shell which swift)
 SWIFTLINT := $(shell which swiftlint)
+XCODEBUILD := $(shell which xcodebuild)
 CURL := $(shell which curl)
 
 repo_name := github-scanner
@@ -44,6 +46,10 @@ lint:
 test:
 	$(SWIFT) test
 .PHONY: test
+
+test-xcode:
+	$(XCODEBUILD) test -project $(repo_name).xcodeproj -scheme $(repo_name) | xcpretty
+.PHONY: test-xcode
 
 release-create:
 	@if [ $(versions_equal) -eq 0 ]; then (echo "Versions not equal in `.app-version` and version command."; exit 1); fi
@@ -97,7 +103,7 @@ dependencies:
 ifndef RUBY
 	$(error "Couldn't find Ruby installed.")
 endif
-	@$(MAKE) install-homebrew install-swiftlint install-github-release
+	@$(MAKE) install-bundler install-homebrew install-swiftlint install-github-release
 
 
 install-homebrew:
@@ -107,6 +113,12 @@ else
 	$(BREW) update
 endif
 
+install-bundler:
+ifndef BUNDLER
+	$(RUBY) gem install bundler
+else
+	$(BUNDLER) install
+endif
 
 install-swiftlint:
 ifndef SWIFTLINT

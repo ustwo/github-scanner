@@ -1,0 +1,20 @@
+language: generic
+
+matrix:
+  include:
+    - script:
+        - make test-xcode
+      env: JOB=Xcode
+      os: osx
+      osx_image: xcode8.2
+      before_install:
+        - make dependencies
+        - make build
+    - script:
+        - make test
+      env: JOB=SwiftPM
+      os: osx
+      osx_image: xcode8.2
+      before_install:
+        - make dependencies
+        - make build
