@@ -12,7 +12,7 @@ import Foundation
 import Result
 
 
-public typealias Repositories = ArrayFoo<Repository>
+public typealias Repositories = DecodableArray<Repository>
 public typealias RepositoryFetchCompletion = (Repositories?, String?, NetworkError?) -> Void
 
 

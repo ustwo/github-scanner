@@ -37,7 +37,7 @@ final class ResponseHandlerTests: XCTestCase {
 
     // MARK: - Types
 
-    typealias RepositoryCompletionHandler = (ArrayFoo<Repository>?, String?, NetworkError?) -> Void
+    typealias RepositoryCompletionHandler = (DecodableArray<Repository>?, String?, NetworkError?) -> Void
 
 
     // MARK: - Properties
