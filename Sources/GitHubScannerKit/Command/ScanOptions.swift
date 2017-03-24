@@ -26,7 +26,7 @@ public struct ScanOptions: OptionsProtocol {
     public let owner: String
 
     // Options
-    
+
     /// Open-source license on which to filter repositories.
     ///  Default is an empty string, which does no filtering.
     ///  To filter for repositories with no license, use "NULL".
@@ -48,7 +48,8 @@ public struct ScanOptions: OptionsProtocol {
 
     /// Validates the all of the options.
     ///
-    /// - Returns: Returns a `Result` type with a void success or a `ScanOptionsError` if failure indicating the failure reason.
+    /// - Returns: Returns a `Result` type with a void success or a `ScanOptionsError`
+    ///            if failure indicating the failure reason.
     public func validateConfiguration() -> Result<(), ScanOptionsError> {
         do {
             let categoryType = try validateCategory()
@@ -112,7 +113,7 @@ public struct ScanOptions: OptionsProtocol {
     }
 
     private func validateRepositoryType<T: RawRepresentable>(type: T.Type) throws where T.RawValue == String {
-        guard let _ = T(rawValue: repositoryType) else {
+        guard T(rawValue: repositoryType) != nil else {
             throw ScanOptionsError.invalidRepositoryType(value: repositoryType)
         }
     }

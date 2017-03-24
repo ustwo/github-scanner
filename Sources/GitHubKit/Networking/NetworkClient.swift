@@ -38,8 +38,10 @@ public final class NetworkClient {
     ///
     /// - Parameters:
     ///   - request: The `URLRequest` to perform.
-    ///   - responseHandler: The handler to process the data returned in the response. Defaults to `ResponseHandlers.default`.
-    ///   - completion: The completion handler called after the `responseHandler` has finished processing. Defaults to `nil`.
+    ///   - responseHandler: The handler to process the data returned in the response.
+    ///                      Defaults to `ResponseHandlers.default`.
+    ///   - completion: The completion handler called after the `responseHandler`
+    ///                 has finished processing. Defaults to `nil`.
     public func dataTask<Output: JSONInitializable>(with request: URLRequest,
                                                     responseHandler: ResponseHandler = ResponseHandlers.default,
                                                     completion: ((_ result: Output?,

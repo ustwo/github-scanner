@@ -14,7 +14,8 @@ import Foundation
 public enum Clients {
     /// The default network client. Caches responses, credentials, and accepts cookies to disk.
     public static let `default` = NetworkClient()
-    /// An ephemeral network client that only maintains a cache, credentials, and cookies in memory. These are not written to disk.
+    /// An ephemeral network client that only maintains a cache, credentials,
+    /// and cookies in memory. These are not written to disk.
     public static let ephemeral: NetworkClient = {
         let session = URLSession(configuration: URLSessionConfiguration.ephemeral)
         return NetworkClient(session: session)
