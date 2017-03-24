@@ -7,8 +7,8 @@
 //
 
 
-import GitHubKit
 import Foundation
+import GitHubKit
 import SwiftyTextTable
 
 

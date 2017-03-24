@@ -32,8 +32,8 @@ extension HTTPURLResponse {
             return result
         }
 
-        content.components(separatedBy: ", ").forEach { s in
-            let linkComponents = s.components(separatedBy: ";")
+        content.components(separatedBy: ", ").forEach { substring in
+            let linkComponents = substring.components(separatedBy: ";")
                 .map {
                     ($0 as NSString).trimmingCharacters(in: CharacterSet.whitespaces)
                 }
@@ -45,11 +45,11 @@ extension HTTPURLResponse {
                 let end = url.characters.index(url.endIndex, offsetBy: -1)
                 let urlRange = start..<end
                 var link: [String: String] = ["url": String(url.characters[urlRange])]
-                linkComponents.dropFirst().forEach { s in
-                    if let equalIndex = s.characters.index(of: "=") {
-                        let componentKey = String(s.characters[s.startIndex..<equalIndex])
-                        let range = s.index(equalIndex, offsetBy: 1)..<s.endIndex
-                        let value = s.characters[range]
+                linkComponents.dropFirst().forEach { component in
+                    if let equalIndex = component.characters.index(of: "=") {
+                        let componentKey = String(component.characters[component.startIndex..<equalIndex])
+                        let range = component.index(equalIndex, offsetBy: 1)..<component.endIndex
+                        let value = component.characters[range]
                         if value.first == "\"" && value.last == "\"" {
                             let start = value.index(value.startIndex, offsetBy: 1)
                             let end = value.index(value.endIndex, offsetBy: -1)
