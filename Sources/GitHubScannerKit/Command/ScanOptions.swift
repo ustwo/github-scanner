@@ -164,7 +164,7 @@ public enum ScanCategory: String {
     static let allValues: [ScanCategory] = [.organization, .user]
 
     static let allValuesList: String = {
-        return ScanCategory.allValues.map({ $0.rawValue }).joined(separator: ", ")
+        ScanCategory.allValues.map({ $0.rawValue }).joined(separator: ", ")
     }()
 }
 
@@ -178,7 +178,7 @@ public enum SelfRepositoriesType: String {
     static let allValues: [SelfRepositoriesType] = [.all, .private, .public]
 
     static let allValuesList: String = {
-        return SelfRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
+        SelfRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
     }()
 }
 
@@ -192,7 +192,7 @@ public enum UserRepositoriesType: String {
     static let allValues: [UserRepositoriesType] = [.all, .member, .owner]
 
     static let allValuesList: String = {
-        return UserRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
+        UserRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
     }()
 }
 
@@ -209,6 +209,6 @@ public enum OrganizationRepositoriesType: String {
     static let allValues: [OrganizationRepositoriesType] = [.all, .forks, .member, .private, .public, .sources]
 
     static let allValuesList: String = {
-        return OrganizationRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
+        OrganizationRepositoriesType.allValues.map({ $0.rawValue }).joined(separator: ", ")
     }()
 }
