@@ -47,7 +47,7 @@ final class JSONResponseHandlerTests: XCTestCase {
         // When
         let completionHandler: RepositoryCompletionHandler = { repository, link, error in
             guard error == nil else {
-                XCTFail("Expected no error but found error: \(error)")
+                XCTFail("Expected no error but found error: \(error.debugDescription)")
                 return
             }
 
@@ -92,7 +92,7 @@ final class JSONResponseHandlerTests: XCTestCase {
             guard let responseError = error,
                 case .invalidJSON = responseError else {
 
-                    XCTFail("Expected invalidJSON but found error: \(error)")
+                    XCTFail("Expected invalidJSON but found error: \(error.debugDescription)")
                     return
             }
         }

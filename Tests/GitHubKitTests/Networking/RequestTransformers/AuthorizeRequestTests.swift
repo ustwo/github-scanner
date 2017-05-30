@@ -51,7 +51,7 @@ final class AuthorizeRequestTests: XCTestCase {
         // Then
         XCTAssertNil(actualHeaderValue,
                      "Expected authorization header to be nil " +
-                     "but instead found: \(actualHeaderValue)")
+                     "but instead found: \(actualHeaderValue.debugDescription)")
     }
 
 }
