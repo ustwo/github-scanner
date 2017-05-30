@@ -1,0 +1,24 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "Commandant",
+      "reason": null,
+      "repositoryURL": "https://github.com/Carthage/Commandant",
+      "version": "0.12.0"
+    },
+    {
+      "package": "Result",
+      "reason": null,
+      "repositoryURL": "https://github.com/antitypical/Result.git",
+      "version": "3.2.3"
+    },
+    {
+      "package": "SwiftyTextTable",
+      "reason": null,
+      "repositoryURL": "https://github.com/scottrhoyt/SwiftyTextTable.git",
+      "version": "0.6.0"
+    }
+  ],
+  "version": 1
+}
