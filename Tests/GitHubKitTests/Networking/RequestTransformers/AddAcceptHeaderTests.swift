@@ -50,7 +50,7 @@ final class AddAcceptHeaderTests: XCTestCase {
         // Then
         XCTAssertNil(actualHeaderValue,
                      "Expected accept header to be nil " +
-                     "but instead found: \(actualHeaderValue)")
+                     "but instead found: \(actualHeaderValue.debugDescription)")
     }
 
 }

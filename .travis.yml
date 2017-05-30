@@ -6,7 +6,7 @@ matrix:
         - make test-xcode
       env: JOB=Xcode
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
       before_install:
         - make dependencies
         - make build
@@ -16,7 +16,7 @@ matrix:
         - make test
       env: JOB=SwiftPM
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
       before_install:
         - make dependencies
         - make build

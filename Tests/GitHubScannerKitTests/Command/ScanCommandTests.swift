@@ -266,7 +266,7 @@ final class ScanOptionsTests: XCTestCase {
             XCTAssertFalse(validity,
                            "Expected configuration to be invalid but it was valid.")
             XCTAssertEqual(error, validityError,
-                           "Expected error to be: \(error) but instead found: \(validityError).")
+                           "Expected error to be: \(error.debugDescription) but instead found: \(validityError).")
         }
     }
 
